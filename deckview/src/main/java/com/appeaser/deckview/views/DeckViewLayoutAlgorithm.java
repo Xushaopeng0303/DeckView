@@ -10,23 +10,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Created by Vikram on 02/04/2015.
- */
-/* The layout logic for a TaskStackView.
+ * The layout logic for a TaskStackView.
  *
- * We are using a curve that defines the curve of the tasks as that go back in the recents list.
+ * <p>We are using a curve that defines the curve of the tasks as that go back in the recents list.
  * The curve is defined such that at curve progress p = 0 is the end of the curve (the top of the
  * stack rect), and p = 1 at the start of the curve and the bottom of the stack rect.
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
-public class DeckViewLayoutAlgorithm<T> {
+class DeckViewLayoutAlgorithm<T> {
 
-    // These are all going to change
-    static final float StackPeekMinScale = 0.8f; // The min scale of the last card in the peek area
+    // These are all going to change，The min scale of the last card in the peek area
+    private static final float STACK_PEEK_MIN_SCALE = 0.8f;
 
     // A report of the visibility state of the stack
-    public class VisibilityReport {
-        public int numVisibleTasks;
-        public int numVisibleThumbnails;
+    private class VisibilityReport {
+        int numVisibleTasks;
+        int numVisibleThumbnails;
 
         /**
          * Package level ctor
@@ -37,41 +37,39 @@ public class DeckViewLayoutAlgorithm<T> {
         }
     }
 
-    DeckViewConfig mConfig;
+    private DeckViewConfig mConfig;
 
     // The various rects that define the stack view
-    public Rect mViewRect = new Rect();
+    Rect mViewRect = new Rect();
     Rect mStackVisibleRect = new Rect();
-    Rect mStackRect = new Rect();
+    private Rect mStackRect = new Rect();
     Rect mTaskRect = new Rect();
 
     // The min/max scroll progress
     float mMinScrollP;
     float mMaxScrollP;
     float mInitialScrollP;
-    int mWithinAffiliationOffset;
-    int mBetweenAffiliationOffset;
-    HashMap<T, Float> mTaskProgressMap = new HashMap<T, Float>();
+    private int mBetweenAffiliationOffset;
+    private HashMap<T, Float> mTaskProgressMap = new HashMap<>();
 
-    // Log function
-    static final float XScale = 1.75f;  // The large the XScale, the longer the flat area of the curve
-    static final float LogBase = 3000;
-    static final int PrecisionSteps = 250;
-    static float[] xp;
-    static float[] px;
+    // Log function，The large the X_SCALE, the longer the flat area of the curve
+    private static final float X_SCALE = 1.75f;
+    private static final float LOG_BASE = 3000;
+    private static final int PRECISION_STEPS = 250;
+    private static float[] xp;
+    private static float[] px;
 
-    public DeckViewLayoutAlgorithm(DeckViewConfig config) {
+    DeckViewLayoutAlgorithm(DeckViewConfig config) {
         mConfig = config;
 
-        // Precompute the path
         initializeCurve();
     }
 
     /**
      * Computes the stack and task rects
      */
-    public void computeRects(int windowWidth, int windowHeight, Rect taskStackBounds) {
-        // Compute the stack rects
+    void computeRect(int windowWidth, int windowHeight, Rect taskStackBounds) {
+        // Compute the stack rect
         mViewRect.set(0, 0, windowWidth, windowHeight);
         mStackRect.set(taskStackBounds);
         mStackVisibleRect.set(taskStackBounds);
@@ -89,7 +87,6 @@ public class DeckViewLayoutAlgorithm<T> {
 
         // Update the affiliation offsets
         float visibleTaskPct = 0.5f;
-        mWithinAffiliationOffset = mConfig.taskBarHeight;
         mBetweenAffiliationOffset = (int) (visibleTaskPct * mTaskRect.height());
     }
 
@@ -111,13 +108,6 @@ public class DeckViewLayoutAlgorithm<T> {
         // Note that we should account for the scale difference of the offsets at the screen bottom
         int taskHeight = mTaskRect.height();
         float pAtBottomOfStackRect = screenYToCurveProgress(mStackVisibleRect.bottom);
-        float pWithinAffiliateTop = screenYToCurveProgress(mStackVisibleRect.bottom -
-                mWithinAffiliationOffset);
-        float scale = curveProgressToScale(pWithinAffiliateTop);
-        int scaleYOffset = (int) (((1f - scale) * taskHeight) / 2);
-        pWithinAffiliateTop = screenYToCurveProgress(mStackVisibleRect.bottom -
-                mWithinAffiliationOffset + scaleYOffset);
-        float pWithinAffiliateOffset = pAtBottomOfStackRect - pWithinAffiliateTop;
         float pBetweenAffiliateOffset = pAtBottomOfStackRect -
                 screenYToCurveProgress(mStackVisibleRect.bottom - mBetweenAffiliationOffset);
         float pTaskHeightOffset = pAtBottomOfStackRect -
@@ -127,8 +117,7 @@ public class DeckViewLayoutAlgorithm<T> {
                         mStackRect.bottom));
 
         // Update the task offsets
-        float pAtBackMostCardTop = 0.5f;
-        float pAtFrontMostCardTop = pAtBackMostCardTop;
+        float pAtFrontMostCardTop = 0.5f;
         int taskCount = data.size();
         for (int i = 0; i < taskCount; i++) {
             //Task task = tasks.get(i);
@@ -140,8 +129,7 @@ public class DeckViewLayoutAlgorithm<T> {
                 // TODO: Might need adjustments
                 //float pPeek = task.group.isFrontMostTask(task) ?
                 //pBetweenAffiliateOffset : pWithinAffiliateOffset;
-                float pPeek = pBetweenAffiliateOffset;
-                pAtFrontMostCardTop += pPeek;
+                pAtFrontMostCardTop += pBetweenAffiliateOffset;
             }
         }
 
@@ -160,7 +148,7 @@ public class DeckViewLayoutAlgorithm<T> {
      * Computes the maximum number of visible tasks and thumbnails.  Requires that
      * computeMinMaxScroll() is called first.
      */
-    public VisibilityReport computeStackVisibilityReport(ArrayList<T> data) {
+    VisibilityReport computeStackVisibilityReport(ArrayList<T> data) {
         if (data.size() <= 1) {
             return new VisibilityReport(1, 1);
         }
@@ -216,7 +204,7 @@ public class DeckViewLayoutAlgorithm<T> {
     /**
      * Update/get the transform
      */
-    public DeckChildViewTransform getStackTransform(T key, float stackScroll,
+    DeckChildViewTransform getStackTransform(T key, float stackScroll,
                                                     DeckChildViewTransform transformOut,
                                                     DeckChildViewTransform prevTransform) {
         // Return early if we have an invalid index
@@ -231,7 +219,7 @@ public class DeckViewLayoutAlgorithm<T> {
     /**
      * Update/get the transform
      */
-    public DeckChildViewTransform getStackTransform(float taskProgress, float stackScroll,
+    DeckChildViewTransform getStackTransform(float taskProgress, float stackScroll,
                                                     DeckChildViewTransform transformOut,
                                                     DeckChildViewTransform prevTransform) {
         float pTaskRelative = taskProgress - stackScroll;
@@ -268,51 +256,46 @@ public class DeckViewLayoutAlgorithm<T> {
     }
 
     /**
-     * Returns the untransformed task view size.
-     */
-    public Rect getUntransformedTaskViewSize() {
-        Rect tvSize = new Rect(mTaskRect);
-        tvSize.offsetTo(0, 0);
-        return tvSize;
-    }
-
-    /**
      * Returns the scroll to such task top = 1f;
      */
-    public float getStackScrollForTask(T key) {
-        if (!mTaskProgressMap.containsKey(key)) return 0f;
+    float getStackScrollForTask(T key) {
+        if (!mTaskProgressMap.containsKey(key)) {
+            return 0f;
+        }
         return mTaskProgressMap.get(key);
     }
 
     /**
      * Initializes the curve.
      */
-    public static void initializeCurve() {
-        if (xp != null && px != null) return;
-        xp = new float[PrecisionSteps + 1];
-        px = new float[PrecisionSteps + 1];
+    private static void initializeCurve() {
+        if (xp != null && px != null) {
+            return;
+        }
+        xp = new float[PRECISION_STEPS + 1];
+        px = new float[PRECISION_STEPS + 1];
 
         // Approximate f(x)
-        float[] fx = new float[PrecisionSteps + 1];
-        float step = 1f / PrecisionSteps;
+        float[] fx = new float[PRECISION_STEPS + 1];
+        float step = 1f / PRECISION_STEPS;
         float x = 0;
-        for (int xStep = 0; xStep <= PrecisionSteps; xStep++) {
+        for (int xStep = 0; xStep <= PRECISION_STEPS; xStep++) {
             fx[xStep] = logFunc(x);
             x += step;
         }
         // Calculate the arc length for x:1->0
         float pLength = 0;
-        float[] dx = new float[PrecisionSteps + 1];
+        float[] dx = new float[PRECISION_STEPS + 1];
         dx[0] = 0;
-        for (int xStep = 1; xStep < PrecisionSteps; xStep++) {
+        for (int xStep = 1; xStep < PRECISION_STEPS; xStep++) {
             dx[xStep] = (float) Math.sqrt(Math.pow(fx[xStep] - fx[xStep - 1], 2) + Math.pow(step, 2));
             pLength += dx[xStep];
         }
         // Approximate p(x), a function of cumulative progress with x, normalized to 0..1
         float p = 0;
         px[0] = 0f;
-        px[PrecisionSteps] = 1f;
-        for (int xStep = 1; xStep <= PrecisionSteps; xStep++) {
+        px[PRECISION_STEPS] = 1f;
+        for (int xStep = 1; xStep <= PRECISION_STEPS; xStep++) {
             p += Math.abs(dx[xStep] / pLength);
             px[xStep] = p;
         }
@@ -321,10 +304,10 @@ public class DeckViewLayoutAlgorithm<T> {
         int xStep = 0;
         p = 0;
         xp[0] = 0f;
-        xp[PrecisionSteps] = 1f;
-        for (int pStep = 0; pStep < PrecisionSteps; pStep++) {
+        xp[PRECISION_STEPS] = 1f;
+        for (int pStep = 0; pStep < PRECISION_STEPS; pStep++) {
             // Walk forward in px and find the x where px <= p && p < px+1
-            while (xStep < PrecisionSteps) {
+            while (xStep < PRECISION_STEPS) {
                 if (px[xStep] > p) break;
                 xStep++;
             }
@@ -344,34 +327,29 @@ public class DeckViewLayoutAlgorithm<T> {
     /**
      * Reverses and scales out x.
      */
-    static float reverse(float x) {
-        return (-x * XScale) + 1;
+    private static float reverse(float x) {
+        return (-x * X_SCALE) + 1;
     }
 
     /**
      * The log function describing the curve.
      */
-    static float logFunc(float x) {
-        return 1f - (float) (Math.pow(LogBase, reverse(x))) / (LogBase);
-    }
-
-    /**
-     * The inverse of the log function describing the curve.
-     */
-    float invLogFunc(float y) {
-        return (float) (Math.log((1f - reverse(y)) * (LogBase - 1) + 1) / Math.log(LogBase));
+    private static float logFunc(float x) {
+        return 1f - (float) (Math.pow(LOG_BASE, reverse(x))) / (LOG_BASE);
     }
 
     /**
      * Converts from the progress along the curve to a screen coordinate.
      */
-    int curveProgressToScreenY(float p) {
-        if (p < 0 || p > 1) return mStackVisibleRect.top + (int) (p * mStackVisibleRect.height());
-        float pIndex = p * PrecisionSteps;
+    private int curveProgressToScreenY(float p) {
+        if (p < 0 || p > 1) {
+            return mStackVisibleRect.top + (int) (p * mStackVisibleRect.height());
+        }
+        float pIndex = p * PRECISION_STEPS;
         int pFloorIndex = (int) Math.floor(pIndex);
         int pCeilIndex = (int) Math.ceil(pIndex);
         float xFraction = 0;
-        if (pFloorIndex < PrecisionSteps && (pCeilIndex != pFloorIndex)) {
+        if (pFloorIndex < PRECISION_STEPS && (pCeilIndex != pFloorIndex)) {
             float pFraction = (pIndex - pFloorIndex) / (pCeilIndex - pFloorIndex);
             xFraction = (xp[pCeilIndex] - xp[pFloorIndex]) * pFraction;
         }
@@ -382,12 +360,11 @@ public class DeckViewLayoutAlgorithm<T> {
     /**
      * Converts from the progress along the curve to a scale.
      */
-    float curveProgressToScale(float p) {
-        if (p < 0) return StackPeekMinScale;
+    private float curveProgressToScale(float p) {
+        if (p < 0) return STACK_PEEK_MIN_SCALE;
         if (p > 1) return 1f;
-        float scaleRange = (1f - StackPeekMinScale);
-        float scale = StackPeekMinScale + (p * scaleRange);
-        return scale;
+        float scaleRange = (1f - STACK_PEEK_MIN_SCALE);
+        return STACK_PEEK_MIN_SCALE + (p * scaleRange);
     }
 
     /**
@@ -395,12 +372,14 @@ public class DeckViewLayoutAlgorithm<T> {
      */
     float screenYToCurveProgress(int screenY) {
         float x = (float) (screenY - mStackVisibleRect.top) / mStackVisibleRect.height();
-        if (x < 0 || x > 1) return x;
-        float xIndex = x * PrecisionSteps;
+        if (x < 0 || x > 1) {
+            return x;
+        }
+        float xIndex = x * PRECISION_STEPS;
         int xFloorIndex = (int) Math.floor(xIndex);
         int xCeilIndex = (int) Math.ceil(xIndex);
         float pFraction = 0;
-        if (xFloorIndex < PrecisionSteps && (xCeilIndex != xFloorIndex)) {
+        if (xFloorIndex < PRECISION_STEPS && (xCeilIndex != xFloorIndex)) {
             float xFraction = (xIndex - xFloorIndex) / (xCeilIndex - xFloorIndex);
             pFraction = (px[xCeilIndex] - px[xFloorIndex]) * xFraction;
         }

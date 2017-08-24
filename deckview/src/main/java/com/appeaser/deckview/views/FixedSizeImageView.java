@@ -1,9 +1,5 @@
 package com.appeaser.deckview.views;
 
-/**
- * Created by Vikram on 01/04/2015.
- */
-
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -13,6 +9,8 @@ import android.widget.ImageView;
 /**
  * This is an optimized ImageView that does not trigger a requestLayout() or invalidate() when
  * setting the image to Null.
+ * <p>
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
 public class FixedSizeImageView extends ImageView {
 

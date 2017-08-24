@@ -7,11 +7,12 @@ import android.view.ViewPropertyAnimator;
 import android.view.animation.Interpolator;
 
 /**
- * Created by Vikram on 02/04/2015.
+ * 变换状态的任务视图
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
-/* The transform state for a task view */
 public class DeckChildViewTransform {
-    public int startDelay = 0;
+    private int startDelay = 0;
     public int translationY = 0;
     public float translationZ = 0;
     public float scale = 1f;
@@ -52,19 +53,19 @@ public class DeckChildViewTransform {
     /**
      * Convenience functions to compare against current property values
      */
-    public boolean hasAlphaChangedFrom(float v) {
+    private boolean hasAlphaChangedFrom(float v) {
         return (Float.compare(alpha, v) != 0);
     }
 
-    public boolean hasScaleChangedFrom(float v) {
+    private boolean hasScaleChangedFrom(float v) {
         return (Float.compare(scale, v) != 0);
     }
 
-    public boolean hasTranslationYChangedFrom(float v) {
+    private boolean hasTranslationYChangedFrom(float v) {
         return (Float.compare(translationY, v) != 0);
     }
 
-    public boolean hasTranslationZChangedFrom(float v) {
+    private boolean hasTranslationZChangedFrom(float v) {
         return (Float.compare(translationZ, v) != 0);
     }
 

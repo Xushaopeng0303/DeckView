@@ -1,9 +1,5 @@
 package com.appeaser.deckview.views;
 
-/**
- * Created by Vikram on 02/04/2015.
- */
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
@@ -27,6 +23,8 @@ import com.appeaser.deckview.utilities.DVUtils;
 /**
  * The task thumbnail view.  It implements an image view that allows for animating the dim and
  * alpha of the thumbnail image.
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
 public class DeckChildViewThumbnail extends View {
 
@@ -236,7 +234,7 @@ public class DeckChildViewThumbnail extends View {
 
     /**
      * Prepares for the enter recents animation, this gets called before the the view
-     * is first visible and will be followed by a startEnterRecentsAnimation() call.
+     * is first visible and will be followed by a startEnterRecentAnimation() call.
      */
     void prepareEnterRecentsAnimation(boolean isTaskViewLaunchTargetTask) {
         if (isTaskViewLaunchTargetTask) {
@@ -245,14 +243,6 @@ public class DeckChildViewThumbnail extends View {
             mThumbnailAlpha = mConfig.taskViewThumbnailAlpha;
         }
         updateThumbnailPaintFilter();
-    }
-
-    /**
-     * Animates this task thumbnail as it enters Recents.
-     */
-    void startEnterRecentsAnimation(int delay, Runnable postAnimRunnable) {
-        startFadeAnimation(mConfig.taskViewThumbnailAlpha, delay,
-                mConfig.taskViewEnterFromAppDuration, postAnimRunnable);
     }
 
     /**

@@ -1,9 +1,5 @@
 package com.appeaser.deckview.helpers;
 
-/**
- * Created by Vikram on 01/04/2015.
- */
-
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -25,44 +21,46 @@ import com.appeaser.deckview.R;
  * frameworks/support/v7/cardview/eclair-mr1/android/support/v7/widget/
  * RoundRectDrawableWithShadow.java revision c42ba8c000d1e6ce85e152dfc17089a0a69e739f with a few
  * modifications to suit our needs in SystemUI.
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
 public class FakeShadowDrawable extends Drawable {
     // used to calculate content padding
-    final static double COS_45 = Math.cos(Math.toRadians(45));
+    private final static double COS_45 = Math.cos(Math.toRadians(45));
 
-    final static float SHADOW_MULTIPLIER = 1.5f;
+    private static final boolean ADD_PADDING_FOR_CORNERS = true;
 
-    final float mInsetShadow; // extra shadow to avoid gaps between card and shadow
+    private final static float SHADOW_MULTIPLIER = 1.5f;
 
-    Paint mCornerShadowPaint;
+    private final float mInsetShadow; // extra shadow to avoid gaps between card and shadow
 
-    Paint mEdgeShadowPaint;
+    private Paint mCornerShadowPaint;
 
-    final RectF mCardBounds;
+    private Paint mEdgeShadowPaint;
 
-    float mCornerRadius;
+    private final RectF mCardBounds;
 
-    Path mCornerShadowPath;
+    private float mCornerRadius;
+
+    private Path mCornerShadowPath;
 
     // updated value with inset
-    float mMaxShadowSize;
+    private float mMaxShadowSize;
 
     // actual value set by developer
-    float mRawMaxShadowSize;
+    private float mRawMaxShadowSize;
 
     // multiplied value to account for shadow offset
-    float mShadowSize;
+    private float mShadowSize;
 
     // actual value set by developer
-    float mRawShadowSize;
+    private float mRawShadowSize;
 
     private boolean mDirty = true;
 
     private final int mShadowStartColor;
 
     private final int mShadowEndColor;
-
-    private boolean mAddPaddingForCorners = true;
 
     /**
      * If shadow size is set to a value above max shadow, we print a warning
@@ -95,7 +93,7 @@ public class FakeShadowDrawable extends Drawable {
         mDirty = true;
     }
 
-    void setShadowSize(float shadowSize, float maxShadowSize) {
+    private void setShadowSize(float shadowSize, float maxShadowSize) {
         if (shadowSize < 0 || maxShadowSize < 0) {
             throw new IllegalArgumentException("invalid shadow size");
         }
@@ -121,15 +119,15 @@ public class FakeShadowDrawable extends Drawable {
     @Override
     public boolean getPadding(Rect padding) {
         int vOffset = (int) Math.ceil(calculateVerticalPadding(mRawMaxShadowSize, mCornerRadius,
-                mAddPaddingForCorners));
+                ADD_PADDING_FOR_CORNERS));
         int hOffset = (int) Math.ceil(calculateHorizontalPadding(mRawMaxShadowSize, mCornerRadius,
-                mAddPaddingForCorners));
+                ADD_PADDING_FOR_CORNERS));
         padding.set(hOffset, vOffset, hOffset, vOffset);
         return true;
     }
 
-    static float calculateVerticalPadding(float maxShadowSize, float cornerRadius,
-                                          boolean addPaddingForCorners) {
+    private static float calculateVerticalPadding(float maxShadowSize, float cornerRadius,
+                                                  boolean addPaddingForCorners) {
         if (addPaddingForCorners) {
             return (float) (maxShadowSize * SHADOW_MULTIPLIER + (1 - COS_45) * cornerRadius);
         } else {
@@ -137,8 +135,8 @@ public class FakeShadowDrawable extends Drawable {
         }
     }
 
-    static float calculateHorizontalPadding(float maxShadowSize, float cornerRadius,
-                                            boolean addPaddingForCorners) {
+    private static float calculateHorizontalPadding(float maxShadowSize, float cornerRadius,
+                                                    boolean addPaddingForCorners) {
         if (addPaddingForCorners) {
             return (float) (maxShadowSize + (1 - COS_45) * cornerRadius);
         } else {

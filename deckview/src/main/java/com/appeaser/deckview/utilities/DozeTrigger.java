@@ -1,26 +1,24 @@
 package com.appeaser.deckview.utilities;
 
-/**
- * Created by Vikram on 01/04/2015.
- */
-
 import android.os.Handler;
 
 /**
  * A dozer is a class that fires a trigger after it falls asleep.  You can occasionally poke it to
  * wake it up, but it will fall asleep if left untouched.
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
 public class DozeTrigger {
 
-    Handler mHandler;
+    private Handler mHandler;
 
-    boolean mIsDozing;
-    boolean mHasTriggered;
-    int mDozeDurationSeconds;
-    Runnable mSleepRunnable;
+    private boolean mIsDozing;
+    private boolean mHasTriggered;
+    private int mDozeDurationSeconds;
+    private Runnable mSleepRunnable;
 
     // Sleep-runnable
-    Runnable mDozeRunnable = new Runnable() {
+    private Runnable mDozeRunnable = new Runnable() {
         @Override
         public void run() {
             mSleepRunnable.run();
@@ -63,7 +61,7 @@ public class DozeTrigger {
     /**
      * Poke this dozer to wake it up for a little bit.
      */
-    void forcePoke() {
+    private void forcePoke() {
         mHandler.removeCallbacks(mDozeRunnable);
         mHandler.postDelayed(mDozeRunnable, mDozeDurationSeconds * 1000);
         mIsDozing = true;

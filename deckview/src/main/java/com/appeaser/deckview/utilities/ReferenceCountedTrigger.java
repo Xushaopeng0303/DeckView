@@ -1,67 +1,44 @@
 package com.appeaser.deckview.utilities;
 
-/**
- * Created by Vikram on 01/04/2015.
- */
-
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.content.Context;
-
 import java.util.ArrayList;
 
 /**
  * A ref counted trigger that does some logic when the count is first incremented, or last
  * decremented.  Not thread safe as it's not currently needed.
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
 public class ReferenceCountedTrigger {
 
-    Context mContext;
-    int mCount;
-    ArrayList<Runnable> mFirstIncRunnables = new ArrayList<Runnable>();
-    ArrayList<Runnable> mLastDecRunnables = new ArrayList<Runnable>();
-    Runnable mErrorRunnable;
+    private int mCount;
+    private ArrayList<Runnable> mFirstIncRunnable = new ArrayList<>();
+    private ArrayList<Runnable> mLastDecRunnable = new ArrayList<>();
+    private Runnable mErrorRunnable;
 
-    // Convenience runnables
-    Runnable mIncrementRunnable = new Runnable() {
-        @Override
-        public void run() {
-            increment();
-        }
-    };
-    Runnable mDecrementRunnable = new Runnable() {
+    private Runnable mDecrementRunnable = new Runnable() {
         @Override
         public void run() {
             decrement();
         }
     };
 
-    public ReferenceCountedTrigger(Context context, Runnable firstIncRunnable,
-                                   Runnable lastDecRunnable, Runnable errorRunanable) {
-        mContext = context;
-        if (firstIncRunnable != null) mFirstIncRunnables.add(firstIncRunnable);
-        if (lastDecRunnable != null) mLastDecRunnables.add(lastDecRunnable);
-        mErrorRunnable = errorRunanable;
+    public ReferenceCountedTrigger(Runnable firstIncRunnable, Runnable lastDecRunnable, Runnable errorRunnable) {
+        if (firstIncRunnable != null) mFirstIncRunnable.add(firstIncRunnable);
+        if (lastDecRunnable != null) mLastDecRunnable.add(lastDecRunnable);
+        mErrorRunnable = errorRunnable;
     }
 
     /**
      * Increments the ref count
      */
     public void increment() {
-        if (mCount == 0 && !mFirstIncRunnables.isEmpty()) {
-            int numRunnables = mFirstIncRunnables.size();
+        if (mCount == 0 && !mFirstIncRunnable.isEmpty()) {
+            int numRunnables = mFirstIncRunnable.size();
             for (int i = 0; i < numRunnables; i++) {
-                mFirstIncRunnables.get(i).run();
+                mFirstIncRunnable.get(i).run();
             }
         }
         mCount++;
-    }
-
-    /**
-     * Convenience method to increment this trigger as a runnable
-     */
-    public Runnable incrementAsRunnable() {
-        return mIncrementRunnable;
     }
 
     /**
@@ -72,7 +49,7 @@ public class ReferenceCountedTrigger {
         // the last decrement runnable
         boolean ensureLastDecrement = (mCount == 0);
         if (ensureLastDecrement) increment();
-        mLastDecRunnables.add(r);
+        mLastDecRunnable.add(r);
         if (ensureLastDecrement) decrement();
     }
 
@@ -81,10 +58,10 @@ public class ReferenceCountedTrigger {
      */
     public void decrement() {
         mCount--;
-        if (mCount == 0 && !mLastDecRunnables.isEmpty()) {
-            int numRunnables = mLastDecRunnables.size();
+        if (mCount == 0 && !mLastDecRunnable.isEmpty()) {
+            int numRunnables = mLastDecRunnable.size();
             for (int i = 0; i < numRunnables; i++) {
-                mLastDecRunnables.get(i).run();
+                mLastDecRunnable.get(i).run();
             }
         } else if (mCount < 0) {
             if (mErrorRunnable != null) {
@@ -103,22 +80,4 @@ public class ReferenceCountedTrigger {
         return mDecrementRunnable;
     }
 
-    /**
-     * Convenience method to decrement this trigger as a animator listener.
-     */
-    public Animator.AnimatorListener decrementOnAnimationEnd() {
-        return new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                decrement();
-            }
-        };
-    }
-
-    /**
-     * Returns the current ref count
-     */
-    public int getCount() {
-        return mCount;
-    }
 }

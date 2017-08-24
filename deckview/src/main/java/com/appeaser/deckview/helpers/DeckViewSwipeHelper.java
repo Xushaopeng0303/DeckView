@@ -1,9 +1,5 @@
 package com.appeaser.deckview.helpers;
 
-/**
- * Created by Vikram on 02/04/2015.
- */
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
@@ -20,32 +16,33 @@ import android.view.animation.LinearInterpolator;
  * This class facilitates swipe to dismiss. It defines an interface to be implemented by the
  * by the class hosting the views that need to swiped, and, using this interface, handles touch
  * events and translates / fades / animates the view as it is dismissed.
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
 public class DeckViewSwipeHelper {
-    static final String TAG = "DeckViewSwipeHelper";
     private static final boolean SLOW_ANIMATIONS = false; // DEBUG;
     private static final boolean CONSTRAIN_SWIPE = true;
     private static final boolean FADE_OUT_DURING_SWIPE = true;
     private static final boolean DISMISS_IF_SWIPED_FAR_ENOUGH = true;
 
     public static final int X = 0;
-    public static final int Y = 1;
+    private static final int Y = 1;
 
     private static LinearInterpolator sLinearInterpolator = new LinearInterpolator();
 
-    private float SWIPE_ESCAPE_VELOCITY = 100f; // dp/sec
-    private int DEFAULT_ESCAPE_ANIMATION_DURATION = 75; // ms
-    private int MAX_ESCAPE_ANIMATION_DURATION = 150; // ms
+    private static final float SWIPE_ESCAPE_VELOCITY = 100f; // dp/sec
+    private static final int DEFAULT_ESCAPE_ANIMATION_DURATION = 75; // ms
+    private static final int MAX_ESCAPE_ANIMATION_DURATION = 150; // ms
     private static final int SNAP_ANIM_LEN = SLOW_ANIMATIONS ? 1000 : 250; // ms
 
-    public static float ALPHA_FADE_START = 0.15f; // fraction of thumbnail width
+    private static final float ALPHA_FADE_START = 0.15f; // fraction of thumbnail width
     // where fade starts
-    static final float ALPHA_FADE_END = 0.65f; // fraction of thumbnail width
+    private static final float ALPHA_FADE_END = 0.65f; // fraction of thumbnail width
     // beyond which alpha->0
     private float mMinAlpha = 0f;
 
     private float mPagingTouchSlop;
-    Callback mCallback;
+    private Callback mCallback;
     private int mSwipeDirection;
     private VelocityTracker mVelocityTracker;
 
@@ -53,11 +50,11 @@ public class DeckViewSwipeHelper {
     private boolean mDragging;
 
     private View mCurrView;
-    private boolean mCanCurrViewBeDimissed;
+    private boolean mCanCurrViewBeDismissed;
     private float mDensityScale;
 
-    public boolean mAllowSwipeTowardsStart = true;
-    public boolean mAllowSwipeTowardsEnd = true;
+    private static final boolean ALLOW_SWIPE_TOWARDS_START = true;
+    private static final boolean ALLOW_SWIPE_TOWARDS_END = true;
     private boolean mRtl;
 
     public DeckViewSwipeHelper(int swipeDirection, Callback callback, float densityScale,
@@ -107,9 +104,8 @@ public class DeckViewSwipeHelper {
     }
 
     private ObjectAnimator createTranslationAnimation(View v, float newPos) {
-        ObjectAnimator anim = ObjectAnimator.ofFloat(v,
+        return ObjectAnimator.ofFloat(v,
                 mSwipeDirection == X ? View.TRANSLATION_X : View.TRANSLATION_Y, newPos);
-        return anim;
     }
 
     private float getPerpendicularVelocity(VelocityTracker vt) {
@@ -134,7 +130,7 @@ public class DeckViewSwipeHelper {
         mMinAlpha = minAlpha;
     }
 
-    float getAlphaForOffset(View view) {
+    private float getAlphaForOffset(View view) {
         float viewSize = getSize(view);
         final float fadeSize = ALPHA_FADE_END * viewSize;
         float result = 1.0f;
@@ -153,7 +149,7 @@ public class DeckViewSwipeHelper {
      * Determines whether the given view has RTL layout.
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    public static boolean isLayoutRtl(View view) {
+    private static boolean isLayoutRtl(View view) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             return View.LAYOUT_DIRECTION_RTL == view.getLayoutDirection();
         } else {
@@ -171,11 +167,11 @@ public class DeckViewSwipeHelper {
                 mVelocityTracker.clear();
                 if (mCurrView != null) {
                     mRtl = isLayoutRtl(mCurrView);
-                    mCanCurrViewBeDimissed = mCallback.canChildBeDismissed(mCurrView);
+                    mCanCurrViewBeDismissed = mCallback.canChildBeDismissed(mCurrView);
                     mVelocityTracker.addMovement(ev);
                     mInitialTouchPos = getPos(ev);
                 } else {
-                    mCanCurrViewBeDimissed = false;
+                    mCanCurrViewBeDismissed = false;
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -276,7 +272,7 @@ public class DeckViewSwipeHelper {
     public boolean onTouchEvent(MotionEvent ev) {
         if (!mDragging) {
             if (!onInterceptTouchEvent(ev)) {
-                return mCanCurrViewBeDimissed;
+                return mCanCurrViewBeDismissed;
             }
         }
 
@@ -315,7 +311,7 @@ public class DeckViewSwipeHelper {
             }
         }
         setTranslation(mCurrView, amount);
-        if (FADE_OUT_DURING_SWIPE && mCanCurrViewBeDimissed) {
+        if (FADE_OUT_DURING_SWIPE && mCanCurrViewBeDismissed) {
             float alpha = getAlphaForOffset(mCurrView);
             mCurrView.setAlpha(alpha);
         }
@@ -324,9 +320,9 @@ public class DeckViewSwipeHelper {
     private boolean isValidSwipeDirection(float amount) {
         if (mSwipeDirection == X) {
             if (mRtl) {
-                return (amount <= 0) ? mAllowSwipeTowardsEnd : mAllowSwipeTowardsStart;
+                return (amount <= 0) ? ALLOW_SWIPE_TOWARDS_END : ALLOW_SWIPE_TOWARDS_START;
             } else {
-                return (amount <= 0) ? mAllowSwipeTowardsStart : mAllowSwipeTowardsEnd;
+                return (amount <= 0) ? ALLOW_SWIPE_TOWARDS_START : ALLOW_SWIPE_TOWARDS_END;
             }
         }
 

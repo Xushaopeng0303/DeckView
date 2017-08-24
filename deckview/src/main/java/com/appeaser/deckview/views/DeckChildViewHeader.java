@@ -34,9 +34,10 @@ import com.appeaser.deckview.utilities.DVConstants;
 import com.appeaser.deckview.utilities.DVUtils;
 
 /**
- * Created by Vikram on 02/04/2015.
+ * The task bar view
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
-/* The task bar view */
 public class DeckChildViewHeader extends FrameLayout {
 
     DeckViewConfig mConfig;
@@ -109,7 +110,9 @@ public class DeckChildViewHeader extends FrameLayout {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // We ignore taps on the task bar except on the filter and dismiss buttons
-        if (!DVConstants.DebugFlags.App.EnableTaskBarTouchEvents) return true;
+        if (!DVConstants.DebugFlags.App.EnableTaskBarTouchEvents) {
+            return true;
+        }
 
         return super.onTouchEvent(event);
     }

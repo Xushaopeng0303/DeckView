@@ -6,30 +6,33 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
- * Created by Vikram on 01/04/2015.
+ * 视图管理池
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
-/* A view pool to manage more views than we can visibly handle */
-public class ViewPool<V, T> {
+class ViewPool<V, T> {
 
-    /* An interface to the consumer of a view pool */
-    public interface ViewPoolConsumer<V, T> {
-        public V createView(Context context);
+    /**
+     * 消费视图管理池的接口
+     */
+    interface ViewPoolConsumer<V, T> {
+        V createView(Context context);
 
-        public void prepareViewToEnterPool(V v);
+        void prepareViewToEnterPool(V v);
 
-        public void prepareViewToLeavePool(V v, T prepareData, boolean isNewView);
+        void prepareViewToLeavePool(V v, T prepareData, boolean isNewView);
 
-        public boolean hasPreferredData(V v, T preferredData);
+        boolean hasPreferredData(V v, T preferredData);
     }
 
-    Context mContext;
-    ViewPoolConsumer<V, T> mViewCreator;
-    LinkedList<V> mPool = new LinkedList<V>();
+    private Context mContext;
+    private ViewPoolConsumer<V, T> mViewCreator;
+    private LinkedList<V> mPool = new LinkedList<>();
 
     /**
      * Initializes the pool with a fixed predetermined pool size
      */
-    public ViewPool(Context context, ViewPoolConsumer<V, T> viewCreator) {
+    ViewPool(Context context, ViewPoolConsumer<V, T> viewCreator) {
         mContext = context;
         mViewCreator = viewCreator;
     }

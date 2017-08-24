@@ -1,12 +1,6 @@
 package com.appeaser.deckview.helpers;
 
-/**
- * Created by Vikram on 02/04/2015.
- */
-
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
@@ -15,77 +9,41 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 
 import com.appeaser.deckview.R;
-import com.appeaser.deckview.utilities.DVConstants;
 
 /**
  * Configuration helper
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
 public class DeckViewConfig {
-    static DeckViewConfig sInstance;
-    static int sPrevConfigurationHashCode;
+    private static DeckViewConfig sInstance;
+    private static int sPrevConfigurationHashCode;
 
-    /**
-     * Levels of svelte in increasing severity/austerity.
-     */
-    // No svelting.
-    public static final int SVELTE_NONE = 0;
-    // Limit thumbnail cache to number of visible thumbnails when Recents was loaded, disable
-    // caching thumbnails as you scroll.
-    public static final int SVELTE_LIMIT_CACHE = 1;
-    // Disable the thumbnail cache, load thumbnails asynchronously when the activity loads and
-    // evict all thumbnails when hidden.
-    public static final int SVELTE_DISABLE_CACHE = 2;
-    // Disable all thumbnail loading.
-    public static final int SVELTE_DISABLE_LOADING = 3;
-
-    /**
-     * Animations
-     */
+    /** Animations */
     public float animationPxMovementPerSecond;
 
-    /**
-     * Interpolators
-     */
+    /** Interpolators */
     public Interpolator fastOutSlowInInterpolator;
     public Interpolator fastOutLinearInInterpolator;
     public Interpolator linearOutSlowInInterpolator;
     public Interpolator quintOutInterpolator;
 
-    /**
-     * Filtering
-     */
-    public int filteringCurrentViewsAnimDuration;
-    public int filteringNewViewsAnimDuration;
-
-    /**
-     * Insets
-     */
+    /** Insets */
     public Rect systemInsets = new Rect();
-    public Rect displayRect = new Rect();
+    private Rect displayRect = new Rect();
 
-    /**
-     * Layout
-     */
-    boolean isLandscape;
 
-    /**
-     * Task stack
-     */
+    /** Task stack */
     public int taskStackScrollDuration;
     public int taskStackMaxDim;
     public int taskStackTopPaddingPx;
     public float taskStackWidthPaddingPct;
     public float taskStackOverscrollPct;
 
-    /**
-     * Transitions
-     */
-    public int transitionEnterFromAppDelay;
+    /** Transitions */
     public int transitionEnterFromHomeDelay;
 
-    /**
-     * Task view animation and styles
-     */
+    /** Task view animation and styles */
     public int taskViewEnterFromAppDuration;
     public int taskViewEnterFromHomeDuration;
     public int taskViewEnterFromHomeStaggerDelay;
@@ -100,52 +58,27 @@ public class DeckViewConfig {
     public int taskViewAffiliateGroupEnterOffsetPx;
     public float taskViewThumbnailAlpha;
 
-    /**
-     * Task bar colors
-     */
-    public int taskBarViewDefaultBackgroundColor;
+    /** Task bar colors */
     public int taskBarViewLightTextColor;
-    public int taskBarViewDarkTextColor;
     public int taskBarViewHighlightColor;
-    public float taskBarViewAffiliationColorMinAlpha;
 
-    /**
-     * Task bar size & animations
-     */
+    /** Task bar size & animations */
     public int taskBarHeight;
     public int taskBarDismissDozeDelaySeconds;
-
-    /**
-     * Nav bar scrim
-     */
-    public int navBarScrimEnterDuration;
 
     /**
      * Launch states
      */
     public boolean launchedWithAltTab;
-    public boolean launchedWithNoRecentTasks;
     public boolean launchedFromAppWithThumbnail;
     public boolean launchedFromHome;
-    public boolean launchedFromSearchHome;
-    public boolean launchedReuseTaskStackViews;
     public boolean launchedHasConfigurationChanged;
-    public int launchedToTaskId;
-    public int launchedNumVisibleTasks;
-    public int launchedNumVisibleThumbnails;
 
     /**
      * Misc *
      */
     public boolean useHardwareLayers;
-    public int altTabKeyDelay;
     public boolean fakeShadows;
-
-    /**
-     * Dev options and global settings
-     */
-    public boolean debugModeEnabled;
-    public int svelteLevel;
 
     /**
      * Private constructor
@@ -192,16 +125,9 @@ public class DeckViewConfig {
     /**
      * Updates the state, given the specified context
      */
-    void update(Context context) {
-        SharedPreferences settings = context.getSharedPreferences(context.getPackageName(), 0);
+    private void update(Context context) {
         Resources res = context.getResources();
         DisplayMetrics dm = res.getDisplayMetrics();
-
-        // Debug mode
-        debugModeEnabled = settings.getBoolean(DVConstants.Values.App.Key_DebugModeEnabled, false);
-
-        // Layout
-        isLandscape = res.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 
         // Insets
         displayRect.set(0, 0, dm.widthPixels, dm.heightPixels);
@@ -209,12 +135,6 @@ public class DeckViewConfig {
         // Animations
         animationPxMovementPerSecond =
                 res.getDimensionPixelSize(R.dimen.animation_movement_in_dps_per_second);
-
-        // Filtering
-        filteringCurrentViewsAnimDuration =
-                res.getInteger(R.integer.filter_animate_current_views_duration);
-        filteringNewViewsAnimDuration =
-                res.getInteger(R.integer.filter_animate_new_views_duration);
 
         // Task stack
         taskStackScrollDuration =
@@ -229,8 +149,6 @@ public class DeckViewConfig {
         taskStackTopPaddingPx = res.getDimensionPixelSize(R.dimen.deck_top_padding);
 
         // Transition
-        transitionEnterFromAppDelay =
-                res.getInteger(R.integer.enter_from_app_transition_duration);
         transitionEnterFromHomeDelay =
                 res.getInteger(R.integer.enter_from_home_transition_duration);
 
@@ -261,32 +179,21 @@ public class DeckViewConfig {
         taskViewThumbnailAlpha = thumbnailAlphaValue.getFloat();
 
         // Task bar colors
-        taskBarViewDefaultBackgroundColor =
-                res.getColor(R.color.task_bar_default_background_color);
         taskBarViewLightTextColor =
                 res.getColor(R.color.task_bar_light_text_color);
-        taskBarViewDarkTextColor =
-                res.getColor(R.color.task_bar_dark_text_color);
         taskBarViewHighlightColor =
                 res.getColor(R.color.task_bar_highlight_color);
         TypedValue affMinAlphaPctValue = new TypedValue();
         res.getValue(R.dimen.task_affiliation_color_min_alpha_percentage, affMinAlphaPctValue, true);
-        taskBarViewAffiliationColorMinAlpha = affMinAlphaPctValue.getFloat();
 
         // Task bar size & animations
         taskBarHeight = res.getDimensionPixelSize(R.dimen.deck_child_header_bar_height);
         taskBarDismissDozeDelaySeconds =
                 res.getInteger(R.integer.task_bar_dismiss_delay_seconds);
 
-        // Nav bar scrim
-        navBarScrimEnterDuration =
-                res.getInteger(R.integer.nav_bar_scrim_enter_duration);
-
         // Misc
         useHardwareLayers = res.getBoolean(R.bool.config_use_hardware_layers);
-        altTabKeyDelay = res.getInteger(R.integer.deck_alt_tab_key_delay);
         fakeShadows = res.getBoolean(R.bool.config_fake_shadows);
-        svelteLevel = res.getInteger(R.integer.deck_svelte_level);
     }
 
     /**
@@ -297,28 +204,10 @@ public class DeckViewConfig {
     }
 
     /**
-     * Updates the search bar app widget
-     */
-    public void updateSearchBarAppWidgetId(Context context, int appWidgetId) {
-
-    }
-
-    /**
      * Updates the states that need to be re-read whenever we re-initialize.
      */
-    void updateOnReinitialize(Context context/*, SystemServicesProxy ssp*/) {
+    private void updateOnReinitialize(Context context/*, SystemServicesProxy ssp*/) {
 
-    }
-
-    /**
-     * Called when the configuration has changed, and we want to reset any configuration specific
-     * members.
-     */
-    public void updateOnConfigurationChange() {
-        // Reset this flag on configuration change to ensure that we recreate new task views
-        launchedReuseTaskStackViews = false;
-        // Set this flag to indicate that the configuration has changed since Recents last launched
-        launchedHasConfigurationChanged = true;
     }
 
     /**

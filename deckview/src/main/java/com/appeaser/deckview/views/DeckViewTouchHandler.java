@@ -13,44 +13,42 @@ import com.appeaser.deckview.helpers.DeckViewSwipeHelper;
 import com.appeaser.deckview.utilities.DVConstants;
 
 /**
- * Created by Vikram on 02/04/2015.
+ * Handles touch events for a TaskStackView.
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
-/* Handles touch events for a TaskStackView. */
-public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
-    static int INACTIVE_POINTER_ID = -1;
+class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
+    private static final int INACTIVE_POINTER_ID = -1;
 
-    DeckViewConfig mConfig;
-    DeckView mDeckView;
-    DeckViewScroller mScroller;
-    VelocityTracker mVelocityTracker;
+    private DeckViewConfig mConfig;
+    private DeckView mDeckView;
+    private DeckViewScroller mScroller;
+    private VelocityTracker mVelocityTracker;
 
-    boolean mIsScrolling;
+    private boolean mIsScrolling;
 
-    float mInitialP;
-    float mLastP;
-    float mTotalPMotion;
-    int mInitialMotionX, mInitialMotionY;
-    int mLastMotionX, mLastMotionY;
-    int mActivePointerId = INACTIVE_POINTER_ID;
-    DeckChildView mActiveDeckChildView = null;
+    private float mLastP;
+    private int mInitialMotionY;
+    private int mLastMotionY;
+    private int mActivePointerId = INACTIVE_POINTER_ID;
 
-    int mMinimumVelocity;
-    int mMaximumVelocity;
+    private int mMinimumVelocity;
+    private int mMaximumVelocity;
     // The scroll touch slop is used to calculate when we start scrolling
-    int mScrollTouchSlop;
-    // The page touch slop is used to calculate when we start swiping
-    float mPagingTouchSlop;
+    private int mScrollTouchSlop;
 
-    DeckViewSwipeHelper mSwipeHelper;
-    boolean mInterceptedBySwipeHelper;
+    private DeckViewSwipeHelper mSwipeHelper;
+    private boolean mInterceptedBySwipeHelper;
 
-    public DeckViewTouchHandler(Context context, DeckView dv,
-                                DeckViewConfig config, DeckViewScroller scroller) {
+    DeckViewTouchHandler(Context context, DeckView dv,
+                         DeckViewConfig config, DeckViewScroller scroller) {
         ViewConfiguration configuration = ViewConfiguration.get(context);
         mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
         mScrollTouchSlop = configuration.getScaledTouchSlop();
-        mPagingTouchSlop = configuration.getScaledPagingTouchSlop();
+
+        // The page touch slop is used to calculate when we start swiping
+        float mPagingTouchSlop = configuration.getScaledPagingTouchSlop();
         mDeckView = dv;
         mScroller = scroller;
         mConfig = config;
@@ -64,7 +62,7 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
     /**
      * Velocity tracker helpers
      */
-    void initOrResetVelocityTracker() {
+    private void initOrResetVelocityTracker() {
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         } else {
@@ -72,13 +70,13 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
         }
     }
 
-    void initVelocityTrackerIfNotExists() {
+    private void initVelocityTrackerIfNotExists() {
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         }
     }
 
-    void recycleVelocityTracker() {
+    private void recycleVelocityTracker() {
         if (mVelocityTracker != null) {
             mVelocityTracker.recycle();
             mVelocityTracker = null;
@@ -88,7 +86,7 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
     /**
      * Returns the view at the specified coordinates
      */
-    DeckChildView findViewAtPoint(int x, int y) {
+    private DeckChildView findViewAtPoint(int x, int y) {
         int childCount = mDeckView.getChildCount();
         for (int i = childCount - 1; i >= 0; i--) {
             DeckChildView tv = (DeckChildView) mDeckView.getChildAt(i);
@@ -104,7 +102,7 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
     /**
      * Constructs a simulated motion event for the current stack scroll.
      */
-    MotionEvent createMotionEventForStackScroll(MotionEvent ev) {
+    private MotionEvent createMotionEventForStackScroll(MotionEvent ev) {
         MotionEvent pev = MotionEvent.obtainNoHistory(ev);
         pev.setLocation(0, mScroller.progressToScrollRange(mScroller.getStackScroll()));
         return pev;
@@ -113,7 +111,7 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
     /**
      * Touch preprocessing for handling below
      */
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
+    boolean onInterceptTouchEvent(MotionEvent ev) {
         // Return early if we have no children
         boolean hasChildren = (mDeckView.getChildCount() > 0);
         if (!hasChildren) {
@@ -132,11 +130,8 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
         switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
                 // Save the touch down info
-                mInitialMotionX = mLastMotionX = (int) ev.getX();
                 mInitialMotionY = mLastMotionY = (int) ev.getY();
-                mInitialP = mLastP = mDeckView.getStackAlgorithm().screenYToCurveProgress(mLastMotionY);
                 mActivePointerId = ev.getPointerId(0);
-                mActiveDeckChildView = findViewAtPoint(mLastMotionX, mLastMotionY);
                 // Stop the current scroll if it is still flinging
                 mScroller.stopScroller();
                 mScroller.stopBoundScrollAnimation();
@@ -154,7 +149,6 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
 
                 int activePointerIndex = ev.findPointerIndex(mActivePointerId);
                 int y = (int) ev.getY(activePointerIndex);
-                int x = (int) ev.getX(activePointerIndex);
                 if (Math.abs(y - mInitialMotionY) > mScrollTouchSlop) {
                     // Save the touch move info
                     mIsScrolling = true;
@@ -165,7 +159,6 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
                     }
                 }
 
-                mLastMotionX = x;
                 mLastMotionY = y;
                 mLastP = mDeckView.getStackAlgorithm().screenYToCurveProgress(mLastMotionY);
                 break;
@@ -177,8 +170,6 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
                 // Reset the drag state and the velocity tracker
                 mIsScrolling = false;
                 mActivePointerId = INACTIVE_POINTER_ID;
-                mActiveDeckChildView = null;
-                mTotalPMotion = 0;
                 recycleVelocityTracker();
                 break;
             }
@@ -190,7 +181,7 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
     /**
      * Handles touch events once we have intercepted them
      */
-    public boolean onTouchEvent(MotionEvent ev) {
+    boolean onTouchEvent(MotionEvent ev) {
         // Short circuit if we have no children
         boolean hasChildren = (mDeckView.getChildCount() > 0);
         if (!hasChildren) {
@@ -209,11 +200,8 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
         switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
                 // Save the touch down info
-                mInitialMotionX = mLastMotionX = (int) ev.getX();
                 mInitialMotionY = mLastMotionY = (int) ev.getY();
-                mInitialP = mLastP = mDeckView.getStackAlgorithm().screenYToCurveProgress(mLastMotionY);
                 mActivePointerId = ev.getPointerId(0);
-                mActiveDeckChildView = findViewAtPoint(mLastMotionX, mLastMotionY);
                 // Stop the current scroll if it is still flinging
                 mScroller.stopScroller();
                 mScroller.stopBoundScrollAnimation();
@@ -230,7 +218,6 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
             case MotionEvent.ACTION_POINTER_DOWN: {
                 final int index = ev.getActionIndex();
                 mActivePointerId = ev.getPointerId(index);
-                mLastMotionX = (int) ev.getX(index);
                 mLastMotionY = (int) ev.getY(index);
                 mLastP = mDeckView.getStackAlgorithm().screenYToCurveProgress(mLastMotionY);
                 break;
@@ -241,7 +228,6 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
                 mVelocityTracker.addMovement(createMotionEventForStackScroll(ev));
 
                 int activePointerIndex = ev.findPointerIndex(mActivePointerId);
-                int x = (int) ev.getX(activePointerIndex);
                 int y = (int) ev.getY(activePointerIndex);
                 int yTotal = Math.abs(y - mInitialMotionY);
                 float curP = mDeckView.getStackAlgorithm().screenYToCurveProgress(y);
@@ -268,10 +254,8 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
                     }
                     mScroller.setStackScroll(curStackScroll + deltaP);
                 }
-                mLastMotionX = x;
                 mLastMotionY = y;
                 mLastP = mDeckView.getStackAlgorithm().screenYToCurveProgress(mLastMotionY);
-                mTotalPMotion += Math.abs(deltaP);
                 break;
             }
             case MotionEvent.ACTION_UP: {
@@ -299,7 +283,6 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
 
                 mActivePointerId = INACTIVE_POINTER_ID;
                 mIsScrolling = false;
-                mTotalPMotion = 0;
                 recycleVelocityTracker();
                 break;
             }
@@ -310,7 +293,6 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
                     // Select a new active pointer id and reset the motion state
                     final int newPointerIndex = (pointerIndex == 0) ? 1 : 0;
                     mActivePointerId = ev.getPointerId(newPointerIndex);
-                    mLastMotionX = (int) ev.getX(newPointerIndex);
                     mLastMotionY = (int) ev.getY(newPointerIndex);
                     mLastP = mDeckView.getStackAlgorithm().screenYToCurveProgress(mLastMotionY);
                     mVelocityTracker.clear();
@@ -324,7 +306,6 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
                 }
                 mActivePointerId = INACTIVE_POINTER_ID;
                 mIsScrolling = false;
-                mTotalPMotion = 0;
                 recycleVelocityTracker();
                 break;
             }
@@ -335,7 +316,7 @@ public class DeckViewTouchHandler implements DeckViewSwipeHelper.Callback {
     /**
      * Handles generic motion events
      */
-    public boolean onGenericMotionEvent(MotionEvent ev) {
+    boolean onGenericMotionEvent(MotionEvent ev) {
         if ((ev.getSource() & InputDevice.SOURCE_CLASS_POINTER) ==
                 InputDevice.SOURCE_CLASS_POINTER) {
             int action = ev.getAction();

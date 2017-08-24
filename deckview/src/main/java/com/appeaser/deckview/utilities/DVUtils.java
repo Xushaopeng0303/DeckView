@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 /**
- * Created by Vikram on 02/04/2015.
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
 public class DVUtils {
     // Reflection methods for altering shadows
@@ -40,7 +40,7 @@ public class DVUtils {
         return calculateTranslationAnimationDuration(distancePx, 100);
     }
 
-    public static int calculateTranslationAnimationDuration(int distancePx, int minDuration) {
+    private static int calculateTranslationAnimationDuration(int distancePx, int minDuration) {
         DeckViewConfig config = DeckViewConfig.getInstance();
         return Math.max(minDuration, (int) (1000f /* ms/s */ *
                 (Math.abs(distancePx) / config.animationPxMovementPerSecond)));
@@ -63,13 +63,13 @@ public class DVUtils {
     }
 
     /**
-     * Maps a coorindate in a descendant view into the parent.
+     * Maps a coordinate in a descendant view into the parent.
      */
-    public static float mapCoordInDescendentToSelf(View descendant, View root,
-                                                   float[] coord, boolean includeRootScroll) {
-        ArrayList<View> ancestorChain = new ArrayList<View>();
+    public static float mapCoordinateInDescendentToSelf(View descendant, View root,
+                                                        float[] coordinate, boolean includeRootScroll) {
+        ArrayList<View> ancestorChain = new ArrayList<>();
 
-        float[] pt = {coord[0], coord[1]};
+        float[] pt = {coordinate[0], coordinate[1]};
 
         View v = descendant;
         while (v != root && v != null) {
@@ -95,17 +95,17 @@ public class DVUtils {
             scale *= v0.getScaleX();
         }
 
-        coord[0] = pt[0];
-        coord[1] = pt[1];
+        coordinate[0] = pt[0];
+        coordinate[1] = pt[1];
         return scale;
     }
 
     /**
      * Maps a coordinate in the root to a descendent.
      */
-    public static float mapCoordInSelfToDescendent(View descendant, View root,
-                                                   float[] coord, Matrix tmpInverseMatrix) {
-        ArrayList<View> ancestorChain = new ArrayList<View>();
+    public static float mapCoordinateInSelfToDescendent(View descendant, View root,
+                                                        float[] coord, Matrix tmpInverseMatrix) {
+        ArrayList<View> ancestorChain = new ArrayList<>();
 
         float[] pt = {coord[0], coord[1]};
 
@@ -195,7 +195,7 @@ public class DVUtils {
         }
     }
 
-    public static Matrix IDENTITY_MATRIX = new Matrix() {
+    private static Matrix IDENTITY_MATRIX = new Matrix() {
         void oops() {
             throw new IllegalStateException("Matrix can not be modified");
         }

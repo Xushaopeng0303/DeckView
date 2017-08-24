@@ -11,26 +11,27 @@ import com.appeaser.deckview.helpers.DeckViewConfig;
 import com.appeaser.deckview.utilities.DVUtils;
 
 /**
- * Created by Vikram on 02/04/2015.
+ * The scrolling logic for a TaskStackView
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
-/* The scrolling logic for a TaskStackView */
-public class DeckViewScroller {
-    public interface DeckViewScrollerCallbacks {
-        public void onScrollChanged(float p);
+class DeckViewScroller {
+
+    interface DeckViewScrollerCallbacks {
+        void onScrollChanged(float p);
     }
 
-    DeckViewConfig mConfig;
-    DeckViewLayoutAlgorithm mLayoutAlgorithm;
-    DeckViewScrollerCallbacks mCb;
+    private DeckViewConfig mConfig;
+    private DeckViewLayoutAlgorithm mLayoutAlgorithm;
+    private DeckViewScrollerCallbacks mCb;
 
-    float mStackScrollP;
+    private float mStackScrollP;
 
     OverScroller mScroller;
     ObjectAnimator mScrollAnimator;
-    float mFinalAnimatedScroll;
+    private float mFinalAnimatedScroll;
 
-    public DeckViewScroller(Context context, DeckViewConfig config,
-                            DeckViewLayoutAlgorithm layoutAlgorithm) {
+    DeckViewScroller(Context context, DeckViewConfig config, DeckViewLayoutAlgorithm layoutAlgorithm) {
         mConfig = config;
         mScroller = new OverScroller(context);
         mLayoutAlgorithm = layoutAlgorithm;
@@ -40,28 +41,28 @@ public class DeckViewScroller {
     /**
      * Resets the task scroller.
      */
-    public void reset() {
+    void reset() {
         mStackScrollP = 0f;
     }
 
     /**
      * Sets the callbacks
      */
-    public void setCallbacks(DeckViewScrollerCallbacks cb) {
+    void setCallbacks(DeckViewScrollerCallbacks cb) {
         mCb = cb;
     }
 
     /**
      * Gets the current stack scroll
      */
-    public float getStackScroll() {
+    float getStackScroll() {
         return mStackScrollP;
     }
 
     /**
      * Sets the current stack scroll
      */
-    public void setStackScroll(float s) {
+    void setStackScroll(float s) {
         mStackScrollP = s;
         if (mCb != null) {
             mCb.onScrollChanged(mStackScrollP);
@@ -71,7 +72,7 @@ public class DeckViewScroller {
     /**
      * Sets the current stack scroll without calling the callback.
      */
-    void setStackScrollRaw(float s) {
+    private void setStackScrollRaw(float s) {
         mStackScrollP = s;
     }
 
@@ -80,7 +81,7 @@ public class DeckViewScroller {
      *
      * @return whether the stack progress changed.
      */
-    public boolean setStackScrollToInitialState() {
+    boolean setStackScrollToInitialState() {
         float prevStackScrollP = mStackScrollP;
         setStackScroll(getBoundedStackScroll(mLayoutAlgorithm.mInitialScrollP));
         return Float.compare(prevStackScrollP, mStackScrollP) != 0;
@@ -89,24 +90,11 @@ public class DeckViewScroller {
     /**
      * Bounds the current scroll if necessary
      */
-    public boolean boundScroll() {
+    boolean boundScroll() {
         float curScroll = getStackScroll();
         float newScroll = getBoundedStackScroll(curScroll);
         if (Float.compare(newScroll, curScroll) != 0) {
             setStackScroll(newScroll);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Bounds the current scroll if necessary, but does not synchronize the stack view with the model.
-     */
-    public boolean boundScrollRaw() {
-        float curScroll = getStackScroll();
-        float newScroll = getBoundedStackScroll(curScroll);
-        if (Float.compare(newScroll, curScroll) != 0) {
-            setStackScrollRaw(newScroll);
             return true;
         }
         return false;
@@ -200,7 +188,7 @@ public class DeckViewScroller {
         return (int) (p * mLayoutAlgorithm.mStackVisibleRect.height());
     }
 
-    float scrollRangeToProgress(int s) {
+    private float scrollRangeToProgress(int s) {
         return (float) s / mLayoutAlgorithm.mStackVisibleRect.height();
     }
 

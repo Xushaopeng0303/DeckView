@@ -15,8 +15,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Interpolator;
-import android.view.animation.PathInterpolator;
 import android.widget.FrameLayout;
 
 import com.appeaser.deckview.R;
@@ -27,9 +25,10 @@ import com.appeaser.deckview.utilities.DVConstants;
 import com.appeaser.deckview.utilities.DVUtils;
 
 /**
- * Created by Vikram on 02/04/2015.
+ * A task view
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
-/* A task view */
 public class DeckChildView<T> extends FrameLayout implements
         View.OnClickListener, View.OnLongClickListener {
 
@@ -37,17 +36,17 @@ public class DeckChildView<T> extends FrameLayout implements
      * The TaskView callbacks
      */
     interface DeckChildViewCallbacks<T> {
-        public void onDeckChildViewAppIconClicked(DeckChildView dcv);
+        void onDeckChildViewAppIconClicked(DeckChildView dcv);
 
-        public void onDeckChildViewAppInfoClicked(DeckChildView dcv);
+        void onDeckChildViewAppInfoClicked(DeckChildView dcv);
 
-        public void onDeckChildViewClicked(DeckChildView<T> dcv, T key);
+        void onDeckChildViewClicked(DeckChildView<T> dcv, T key);
 
-        public void onDeckChildViewDismissed(DeckChildView<T> dcv);
+        void onDeckChildViewDismissed(DeckChildView<T> dcv);
 
-        public void onDeckChildViewClipStateChanged(DeckChildView dcv);
+        void onDeckChildViewClipStateChanged(DeckChildView dcv);
 
-        public void onDeckChildViewFocusChanged(DeckChildView<T> dcv, boolean focused);
+        void onDeckChildViewFocusChanged(DeckChildView<T> dcv, boolean focused);
     }
 
     DeckViewConfig mConfig;
@@ -71,8 +70,6 @@ public class DeckChildView<T> extends FrameLayout implements
     DeckChildViewThumbnail mThumbnailView;
     DeckChildViewHeader mHeaderView;
     DeckChildViewCallbacks<T> mCb;
-
-    public static final Interpolator ALPHA_IN = new PathInterpolator(0.4f, 0f, 1f, 1f);
 
     // Optimizations
     ValueAnimator.AnimatorUpdateListener mUpdateDimListener =
@@ -156,7 +153,6 @@ public class DeckChildView<T> extends FrameLayout implements
         int height = MeasureSpec.getSize(heightMeasureSpec);
 
         int widthWithoutPadding = width - getPaddingLeft() - getPaddingRight();
-        int heightWithoutPadding = height - getPaddingTop() - getPaddingBottom();
 
         // Measure the content
         mContent.measure(MeasureSpec.makeMeasureSpec(widthWithoutPadding, MeasureSpec.EXACTLY),
@@ -263,7 +259,7 @@ public class DeckChildView<T> extends FrameLayout implements
      * Animates this task view as it enters recents
      */
     void startEnterRecentsAnimation(final ViewAnimation.TaskViewEnterContext ctx) {
-        Log.i(getClass().getSimpleName(), "startEnterRecentsAnimation");
+        Log.i(getClass().getSimpleName(), "startEnterRecentAnimation");
         final DeckChildViewTransform transform = ctx.currentTaskTransform;
         int startDelay = 0;
 

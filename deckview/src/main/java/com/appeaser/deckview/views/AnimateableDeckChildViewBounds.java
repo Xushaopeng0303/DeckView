@@ -8,21 +8,22 @@ import android.view.ViewOutlineProvider;
 import com.appeaser.deckview.helpers.DeckViewConfig;
 
 /**
- * Created by Vikram on 02/04/2015.
+ * An outline provider that has a clip and outline that can be animated.
+ *
+ * <p>Source：https://github.com/vikramkakkar/DeckView
  */
-/* An outline provider that has a clip and outline that can be animated. */
-public class AnimateableDeckChildViewBounds extends ViewOutlineProvider {
+class AnimateableDeckChildViewBounds extends ViewOutlineProvider {
 
-    DeckViewConfig mConfig;
+    private DeckViewConfig mConfig;
 
-    DeckChildView mSourceView;
-    Rect mClipRect = new Rect();
-    Rect mClipBounds = new Rect();
-    int mCornerRadius;
-    float mAlpha = 1f;
-    final float mMinAlpha = 0.25f;
+    private DeckChildView mSourceView;
+    private Rect mClipRect = new Rect();
+    private Rect mClipBounds = new Rect();
+    private int mCornerRadius;
+    private float mAlpha = 1f;
+    private static final float MIN_ALPHA = 0.25f;
 
-    public AnimateableDeckChildViewBounds(DeckChildView source, int cornerRadius) {
+    AnimateableDeckChildViewBounds(DeckChildView source, int cornerRadius) {
         mConfig = DeckViewConfig.getInstance();
         mSourceView = source;
         mCornerRadius = cornerRadius;
@@ -31,7 +32,7 @@ public class AnimateableDeckChildViewBounds extends ViewOutlineProvider {
 
     @Override
     public void getOutline(View view, Outline outline) {
-        outline.setAlpha(mMinAlpha + mAlpha / (1f - mMinAlpha));
+        outline.setAlpha(MIN_ALPHA + mAlpha / (1f - MIN_ALPHA));
         outline.setRoundRect(mClipRect.left, mClipRect.top,
                 mSourceView.getWidth() - mClipRect.right,
                 mSourceView.getHeight() - mClipRect.bottom,
@@ -51,7 +52,7 @@ public class AnimateableDeckChildViewBounds extends ViewOutlineProvider {
     /**
      * Sets the bottom clip.
      */
-    public void setClipBottom(int bottom) {
+    void setClipBottom(int bottom) {
         if (bottom != mClipRect.bottom) {
             mClipRect.bottom = bottom;
             mSourceView.invalidateOutline();
@@ -66,7 +67,7 @@ public class AnimateableDeckChildViewBounds extends ViewOutlineProvider {
     /**
      * Returns the bottom clip.
      */
-    public int getClipBottom() {
+    private int getClipBottom() {
         return mClipRect.bottom;
     }
 
