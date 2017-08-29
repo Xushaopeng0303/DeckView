@@ -67,7 +67,7 @@ public class DeckViewSampleActivity extends Activity {
         if (mEntries == null) {
             mEntries = new ArrayList<>();
 
-            for (int i = 1; i < 100; i++) {
+            for (int i = 0; i < 1; i++) {
                 Datum datum = new Datum();
                 datum.id = generateUniqueKey();
                 datum.link = "http://lorempixel.com/" + imageSize + "/" + imageSize

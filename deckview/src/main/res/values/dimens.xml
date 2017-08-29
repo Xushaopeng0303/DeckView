@@ -11,7 +11,7 @@
     <!-- The overscroll percentage allowed on the deck. -->
     <item name="deck_overscroll_percentage" format="float" type="dimen">0.0875</item>
 
-    <!-- The top offset for the deck. -->
+    <!-- Task距离顶部的padding -->
     <dimen name="deck_top_padding">16dp</dimen>
 
     <!-- The amount to translate when animating the removal of a task. -->
@@ -39,7 +39,7 @@
     <dimen name="deck_child_header_bar_height">56dp</dimen>
 
     <!-- The alpha to apply to a task thumbnail. -->
-    <item name="task_view_thumbnail_alpha" format="float" type="dimen">0.9</item>
+    <item name="task_view_thumbnail_alpha" format="float" type="dimen">1.0</item>
 
     <!-- Inset shadow for FakeShadowDrawable. It is used to avoid gaps between the card
          and the shadow. -->
